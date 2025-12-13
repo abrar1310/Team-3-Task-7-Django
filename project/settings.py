@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "users",
+    "books",
 ]
 
 MIDDLEWARE = [
@@ -138,3 +139,5 @@ SIMPLE_JWT = {
 
 AUTH_USER_MODEL = "users.CustomUser"
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
