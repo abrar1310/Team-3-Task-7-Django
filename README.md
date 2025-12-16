@@ -11,3 +11,6 @@ It handles **books, authors, borrowing records**, and includes **user authentica
 - Book management (CRUD for admin users)
 - Borrowing and returning books
 - Role-based permissions for users
+
+## Swagger Docs
+- swagger documentation for all endpoints
