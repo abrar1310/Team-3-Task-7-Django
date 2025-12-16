@@ -8,13 +8,10 @@ from borrowings.serializers import BorrowingSerializer
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
 
-
-@extend_schema_view(
-    post=extend_schema(
-        summary="Borrow a book",
-        description="Create a borrowing record for the logged-in user.",
-        responses={201: BorrowingSerializer}
-    )
+@extend_schema(
+    summary="Borrow a book",
+    description="Create a borrowing record for the logged-in user.",
+    responses={201: BorrowingSerializer}
 )
 class BorrowBookView(generics.CreateAPIView):
     serializer_class = BorrowingSerializer
@@ -24,6 +21,12 @@ class BorrowBookView(generics.CreateAPIView):
         serializer.save(user=self.request.user)
 
 
+# Show my borrowings
+@extend_schema(
+    summary="Show my borrowings",
+    description="Retrieve a list of borrowing records for the logged-in user.",
+    responses={200: BorrowingSerializer(many=True)}
+)
 class MyBorrowsView(generics.ListAPIView):
     serializer_class = BorrowingSerializer
     permission_classes = [IsAuthenticated]
@@ -32,6 +35,12 @@ class MyBorrowsView(generics.ListAPIView):
         return BorrowingRecord.objects.filter(user=self.request.user)
 
 
+# Return a borrowed book
+@extend_schema(
+    summary="Return a borrowed book",
+    description="Mark a borrowing record as returned and update book availability.",
+    responses={200: BorrowingSerializer}
+)
 class ReturnBookView(generics.UpdateAPIView):
     serializer_class = BorrowingSerializer
     permission_classes = [IsAuthenticated, IsOwner]
