@@ -4,6 +4,7 @@ from borrowings.models import BorrowingRecord
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from borrowings.permissions import IsOwner
+from django.db import transaction
 from borrowings.serializers import BorrowingSerializer
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
@@ -21,7 +22,6 @@ class BorrowBookView(generics.CreateAPIView):
         serializer.save(user=self.request.user)
 
 
-# Show my borrowings
 @extend_schema(
     summary="Show my borrowings",
     description="Retrieve a list of borrowing records for the logged-in user.",
@@ -35,7 +35,6 @@ class MyBorrowsView(generics.ListAPIView):
         return BorrowingRecord.objects.filter(user=self.request.user)
 
 
-# Return a borrowed book
 @extend_schema(
     summary="Return a borrowed book",
     description="Mark a borrowing record as returned and update book availability.",
@@ -48,8 +47,13 @@ class ReturnBookView(generics.UpdateAPIView):
 
     def perform_update(self, serializer):
         borrowing = serializer.instance
-        borrowing.is_returned = True
-        borrowing.return_date = timezone.now()
-        borrowing.book.available_copies += 1
-        borrowing.book.save()
-        borrowing.save()
+        if not borrowing.is_returned:
+            with transaction.atomic():
+                borrowing.is_returned = True
+                borrowing.return_date = timezone.now()
+                borrowing.book.available_copies = min(
+                    borrowing.book.available_copies + 1,
+                    borrowing.book.total_copies
+                )
+                borrowing.book.save()
+                borrowing.save()

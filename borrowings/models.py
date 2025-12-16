@@ -1,5 +1,5 @@
 from datetime import timedelta
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 from books.models import Book
 from django.utils import timezone
@@ -21,6 +21,7 @@ class BorrowingRecord(models.Model):
             self.due_date = timezone.now() + timedelta(days=14)
             if self.book.available_copies <= 0:
                 raise ValueError("No copies available")
-            self.book.available_copies -= 1
-            self.book.save()
+            with transaction.atomic():
+                self.book.available_copies -= 1
+                self.book.save()
         super().save(*args, **kwargs)
