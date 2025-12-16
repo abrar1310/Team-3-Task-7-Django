@@ -38,7 +38,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
     "users",
+    "books",
+    "borrowings",
 ]
 
 MIDDLEWARE = [
@@ -126,8 +130,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_RENDERER_CLASSES': ["rest_framework.renderers.JSONRenderer"],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.AllowAny",
     ),
 }
 
@@ -138,3 +147,12 @@ SIMPLE_JWT = {
 
 AUTH_USER_MODEL = "users.CustomUser"
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+SEPCTACULAR_SETTINGS = {
+    "TITLE" : "CRUD API",
+    "DESCRIPTION" : "Simple CRUD API for Books using Django REST Framework.",
+    "VERSION" : "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+}
